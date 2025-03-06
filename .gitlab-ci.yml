@@ -52,7 +52,7 @@ failure_notification:
   when: on_failure
 
 cleanup:
-  stage: cleanup
+  stage: .post
   script:
     - docker system prune -af
   rules:
