@@ -31,34 +31,3 @@ jobs:
           tags: |
             ghcr.io/mdbook/${{ github.event.repository.name }}:${{ github.sha }}
             ghcr.io/mdbook/${{ github.event.repository.name }}:latest
-
-      - name: Output image details for notification
-        id: image_details
-        run: |
-          echo "IMAGE_SHA=ghcr.io/${{ github.repository }}:${{ github.sha }}" >> $GITHUB_OUTPUT
-          echo "IMAGE_LATEST=ghcr.io/${{ github.repository }}:latest" >> $GITHUB_OUTPUT
-
-  notification:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout notification script
-        uses: actions/checkout@v3
-        with:
-          repository: mikayla/scripts
-          path: scripts
-
-      - name: Set up curl
-        run: sudo apt-get update && sudo apt-get install curl -y
-
-      - name: Success Notification (if build was successful)
-        if: success()
-        run: |
-          chmod +x scripts/ci-discord-hook.sh
-          scripts/ci-discord-hook.sh success ${{ secrets.WEBHOOK_URL }}
-
-      - name: Failure Notification (if build failed)
-        if: failure()
-        run: |
-          chmod +x scripts/ci-discord-hook.sh
-          scripts/ci-discord-hook.sh failure ${{ secrets.WEBHOOK_URL }}
