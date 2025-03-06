@@ -14,8 +14,6 @@ RUN wget https://github.com/k4yt3x/video2x/releases/download/${VIDEO2X_VERSION}/
 # Stage 2: Runtime
 FROM nvidia/cuda:12.8.0-runtime-ubuntu24.04
 
-ARG VIDEO2X_VERSION=6.4.0
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install python3-full python3-pip ffmpeg wget bc -y
 
 # Vulkan setup
