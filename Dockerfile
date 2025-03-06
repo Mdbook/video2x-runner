@@ -30,13 +30,13 @@ WORKDIR /video2x
 RUN ln -s /video2x/usr/share/video2x/models /video2x/models
 RUN ln -s AppRun video2x
 
-COPY process.sh /process.sh
+COPY process.sh /entrypoint.sh
 COPY process.py /process.py
 COPY requirements.txt /requirements.txt
-RUN chmod +x /process.sh
+RUN chmod +x /entrypoint.sh
 
 # Create a non-root user
 RUN useradd -ms /bin/bash video2x
 USER video2x
 
-ENTRYPOINT ["/process.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
