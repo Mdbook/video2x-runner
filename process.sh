@@ -4,8 +4,7 @@ echo "Running as user $(whoami)"
 # Add /video2x to PATH
 export PATH=$PATH:/video2x
 video2x -l
-# ./AppRun -i /input/standard-test.mp4 -o /output/standard-test.mp4 -s 2 -p realesrgan --realesrgan-model realesr-animevideov3
-# exit 1
+
 while true; do
   file=$(find /input -maxdepth 1 -type f -name "*.mp4" -print -quit)
   
@@ -33,17 +32,44 @@ while true; do
     filename=$(basename "$file")
     output_filename="${filename%.*}_upscaled.mp4"
 
-    # Try-Catch for video2x
-    if video2x -i "$file" -o "/output/$output_filename" -p realesrgan -s 4 --realesrgan-model realesr-animevideov3; then
-      echo "video2x processing successful for $filename"
-      mkdir -p /input/processed
-      mv "$file" /input/processed/
+    # Get video resolution using ffprobe
+    width=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=noprint_wrappers=1:nokey=1 "$file")
+    height=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=noprint_wrappers=1:nokey=1 "$file")
+
+    if [[ -n "$width" && -n "$height" ]]; then
+        echo "Video resolution: ${width}x${height} for $filename"
+        # Calculate the upscale factor to approximate 1080p (1920x1080)
+        target_height=1080
+        scale=$(echo "scale=2; $target_height / $height" | bc)
+
+        # Round the scale to the nearest integer
+        scale_int=$(printf "%.0f" "$scale")
+
+        # Ensure scale is at least 1 and at most 4
+        if [ "$scale_int" -lt 1 ]; then
+            scale_int=4
+        fi
+        if [ "$scale_int" -gt 4 ]; then
+            scale_int=4
+        fi
+
+        echo "Scale factor set to $scale_int for $filename"
+
+        # Try-Catch for video2x
+        if video2x -i "$file" -o "/output/$output_filename" -p realesrgan -s "$scale_int" --realesrgan-model realesr-animevideov3; then
+            echo "video2x processing successful for $filename (scale: $scale_int)"
+            mkdir -p /input/processed
+            mv "$file" /input/processed/
+        else
+            echo "video2x processing failed for $filename"
+            exit 1
+            # Optionally, you might want to move the file to an error folder
+            # mkdir -p /input/error
+            # mv "$file" /input/error/
+        fi
     else
-      echo "video2x processing failed for $filename"
-      exit 0
-      # Optionally, you might want to move the file to an error folder
-      # mkdir -p /input/error
-      # mv "$file" /input/error/
+        echo "Failed to get video resolution for $filename"
+        exit 1
     fi
 
   else
