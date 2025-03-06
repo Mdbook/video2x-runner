@@ -15,7 +15,7 @@ FROM nvidia/cuda:12.8.0-runtime-ubuntu24.04
 
 ARG VIDEO2X_VERSION=6.4.0
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg wget bc -y
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install python3-full python3-pip ffmpeg wget bc -y
 
 # Vulkan setup
 RUN wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
@@ -30,6 +30,8 @@ RUN ln -s /video2x/usr/share/video2x/models /video2x/models
 RUN ln -s AppRun video2x
 
 COPY process.sh /process.sh
+COPY process.py /process.py
+COPY requirements.txt /requirements.txt
 RUN chmod +x /process.sh
 
 # Create a non-root user
