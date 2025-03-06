@@ -1,9 +1,13 @@
 #!/bin/bash
-./AppRun -l
-./AppRun -i /input/standard-test.mp4 -o /output/standard-test.mp4 -s 2 -p realesrgan --realesrgan-model realesr-animevideov3
-exit 1
+
+echo "Running as user $(whoami)"
+# Add /video2x to PATH
+export PATH=$PATH:/video2x
+video2x -l
+# ./AppRun -i /input/standard-test.mp4 -o /output/standard-test.mp4 -s 2 -p realesrgan --realesrgan-model realesr-animevideov3
+# exit 1
 while true; do
-  file=$(find /input -type f -name "*.mp4" -print -quit)
+  file=$(find /input -maxdepth 1 -type f -name "*.mp4" -print -quit)
   
   if [ -n "$file" ]; then
     # Check if the file is still being copied
