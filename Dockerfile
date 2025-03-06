@@ -27,6 +27,7 @@ COPY --from=builder /video2x_appimage /video2x
 
 WORKDIR /video2x
 RUN ln -s /video2x/usr/share/video2x/models /video2x/models
+RUN ln -s AppRun video2x
 
 COPY process.sh /process.sh
 RUN chmod +x /process.sh
