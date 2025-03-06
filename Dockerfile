@@ -15,7 +15,7 @@ FROM nvidia/cuda:12.8.0-runtime-ubuntu24.04
 
 ARG VIDEO2X_VERSION=6.4.0
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg wget -y
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install ffmpeg wget bc -y
 
 # Vulkan setup
 RUN wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | tee /etc/apt/trusted.gpg.d/lunarg.asc
