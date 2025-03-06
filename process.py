@@ -7,10 +7,12 @@ import ffmpeg
 
 # TODO resolve naming conflicts (error handling)
 # TODO add logging
-# TODO add support for multiple input formats
-# TODO add support for multiple output formats
+# TODO add support for multiple input formats (in progress)
+# TODO add support for multiple output formats (in progress)
+# TODO add support for hvec_nvenc, hvec_amf, and hvec_qsv
 # TODO add support for multiple upscale models
 # TODO add support for multiple upscale resolutions
+# TODO add database to keep track of broken files
 
 def get_video_resolution(file_path):
     try:
@@ -27,7 +29,15 @@ def get_video_resolution(file_path):
 
 def main():
     while True:
+        ext = ".mp4"
         file = next(Path('/input').glob('*.mp4'), None)
+        if not file:
+            file = next(Path('/input').glob('*.mkv'), None)
+            ext = ".mkv"
+        if not file:
+            file = next(Path('/input').glob('*.avi'), None)
+            ext = ".avi"
+        
 
         if file:
             stable = 0
@@ -48,7 +58,12 @@ def main():
                 time.sleep(1)
 
             filename = file.name
-            output_filename = f"{filename.rsplit('.', 1)[0]}_upscaled.mp4"
+            output_filename = f"{filename.rsplit('.', 1)[0]}_upscaled" + ext
+            # Test if output filename already exists
+            if (Path('/output') / output_filename).exists():
+                print(f"Output file {output_filename} already exists! Skipping...")
+                file.rename(Path('/input/processed') / file.name)
+                continue
 
             width, height = get_video_resolution(str(file))
 
@@ -64,7 +79,7 @@ def main():
 
                 try:
                     subprocess.run(
-                        ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3'],
+                        ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3', '-c', "libx265"],
                         check=True
                     )
                     print(f"video2x processing successful for {filename} (scale: {scale_int})")
