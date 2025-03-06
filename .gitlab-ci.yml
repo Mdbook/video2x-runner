@@ -50,3 +50,10 @@ failure_notification:
     - chmod +x ci-discord-hook.sh
     - /bin/sh ci-discord-hook.sh failure $WEBHOOK_URL
   when: on_failure
+
+cleanup:
+  stage: cleanup
+  script:
+    - docker system prune -af
+  rules:
+    - when: always
