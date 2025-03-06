@@ -1,0 +1,52 @@
+image: docker:20.10.16
+
+services:
+  - docker:20.10.16-dind
+
+variables:
+  # Tell docker CLI how to talk to Docker daemon
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_DRIVER: overlay2
+  # Use the overlayfs driver for improved performance
+  FF_NETWORK_PER_BUILD: "true"
+
+stages:
+  - build
+  - notification
+
+before_script:
+  - 'echo "Registry URL: $CI_REGISTRY"'
+  - 'echo "Registry User: $CI_REGISTRY_USER"'
+  - 'echo "Registry Image: $CI_REGISTRY_IMAGE"'
+  - 'echo "Project Path: $CI_PROJECT_PATH"'
+  - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+
+build:
+  stage: build
+  script:
+    - 'echo "Building image: $CI_REGISTRY_IMAGE:latest"'
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
+    - docker tag "$CI_REGISTRY_IMAGE:latest" "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  rules:
+    - when: always
+
+success_notification:
+  stage: notification
+  script:
+    - apk add curl git
+    - wget https://gitlab.mdbook.me/mikayla/scripts/-/raw/master/ci-discord-hook.sh
+    - chmod +x ci-discord-hook.sh
+    - /bin/sh ci-discord-hook.sh success $WEBHOOK_URL
+  when: on_success
+
+failure_notification:
+  stage: notification
+  script:
+    - apk add curl git
+    - wget https://gitlab.mdbook.me/mikayla/scripts/-/raw/master/ci-discord-hook.sh
+    - chmod +x ci-discord-hook.sh
+    - /bin/sh ci-discord-hook.sh failure $WEBHOOK_URL
+  when: on_failure
