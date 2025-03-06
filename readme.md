@@ -2,20 +2,9 @@
 
 *This project is in ALPHA! It is under active development and is not yet ready for production use.*
 
+Project README has been generated using LLMs and may not be accurate An updated README will be available at a later date.
+
 This project provides a Dockerized setup for running Video2X, a tool for upscaling videos using machine learning models. The setup includes a Dockerfile for building the image and a `process.sh` script for processing videos in a specified input directory.
-
-## Project Structure
-
-```
-video2x-runner/
-├── Dockerfile
-├── process.sh
-└── docker-compose.yaml
-```
-
-- `Dockerfile`: Defines the Docker image for running Video2X.
-- `process.sh`: Script for processing videos in the input directory.
-- `docker-compose.yaml`: Docker Compose configuration for running the Video2X container.
 
 ## Prerequisites
 
