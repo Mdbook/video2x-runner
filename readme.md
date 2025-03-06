@@ -1,3 +1,5 @@
+<img src="assets/Video2x-logo-small.png" alt="Video2X Logo" width="128">
+
 # Video2X Runner
 
 *This project is in ALPHA! It is under active development and is not yet ready for production use.*
