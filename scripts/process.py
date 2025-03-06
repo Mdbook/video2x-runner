@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 import ffmpeg
 
+# TODO add config json file
 # TODO resolve naming conflicts (error handling)
 # TODO add logging
 # TODO add support for multiple input formats (in progress)
