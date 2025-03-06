@@ -3,14 +3,13 @@ services:
     build: . # Build from the Dockerfile in the current directory
     container_name: video2x-runner
     volumes:
-      - ./input-test:/input
-      - ./output-test:/output
-    runtime: nvidia
-    privileged: true
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           capabilities: [gpu]
-    #           device_ids: [ "0" ]
+      - /mnt/plex/Upscale/input:/input
+      - /mnt/plex/Upscale/output:/output
+    user: 1001:1001
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: [ "0" ]
