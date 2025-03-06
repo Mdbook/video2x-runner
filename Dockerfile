@@ -1,3 +1,4 @@
+# TODO change the base image to something better
 FROM nvidia/cuda:12.8.0-devel-ubuntu24.04 AS builder
 
 ARG VIDEO2X_VERSION=6.4.0
