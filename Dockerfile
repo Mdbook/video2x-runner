@@ -28,13 +28,17 @@ WORKDIR /video2x
 RUN ln -s /video2x/usr/share/video2x/models /video2x/models
 RUN ln -s AppRun video2x
 
-COPY scripts/entrypoint.sh /entrypoint.sh
-COPY scripts/process.py /process.py
-COPY requirements.txt /requirements.txt
-RUN chmod +x /entrypoint.sh
+
+RUN mkdir /scripts
+COPY scripts/* /scripts/
+COPY requirements.txt /scripts/
+# COPY scripts/entrypoint.sh /entrypoint.sh
+# COPY scripts/process.py /process.py
+# COPY requirements.txt /requirements.txt
+RUN chmod +x /scripts/entrypoint.sh
 
 # Create a non-root user
 RUN useradd -ms /bin/bash video2x
 USER video2x
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/scripts/entrypoint.sh"]
