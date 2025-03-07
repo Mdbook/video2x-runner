@@ -88,7 +88,7 @@ def main():
                     print(f"Running flat scaling for {file.name} using scale factor {scale_int}")
                 elif v2xvars.SCALE_METHOD == 'target_resolution':
                     target_height = v2xvars.TARGET_RESOLUTION
-                    scale = target_height / height
+                    scale = int(target_height) / height
                     scale_int = round(scale)
                     scale_int = max(1, min(scale_int, 4))
                     print(f"Scale factor set to {scale_int} for {file.name}")
