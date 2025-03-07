@@ -6,13 +6,15 @@ from pathlib import Path
 import ffmpeg
 
 # TODO resolve naming conflicts (error handling)
-# TODO add logging
+# TODO add verbose logging
+# TODO add progress logging
 # TODO add support for multiple input formats (in progress)
 # TODO add support for multiple output formats (in progress)
 # TODO add support for hvec_nvenc, hvec_amf, and hvec_qsv
 # TODO add support for multiple upscale models
 # TODO add support for multiple upscale resolutions
 # TODO add database to keep track of broken files
+print("Starting up...")
 
 def get_video_resolution(file_path):
     try:
@@ -29,22 +31,41 @@ def get_video_resolution(file_path):
 
 def main():
     while True:
+        Path('/input/processed').mkdir(parents=True, exist_ok=True)
         ext = ".mp4"
-        file = next(Path('/input').glob('*.mp4'), None)
-        if not file:
-            file = next(Path('/input').glob('*.mkv'), None)
-            ext = ".mkv"
-        if not file:
-            file = next(Path('/input').glob('*.avi'), None)
-            ext = ".avi"
-        
-
+        file = None
+        for ext in ['.mp4', '.mkv', '.avi']:
+            file = next(Path('/input').glob("*" + ext), None)
+            if file:
+                break
         if file:
+            print(file)
+            filename = file.name
+            output_filename = f"{filename.rsplit('.', 1)[0]}_upscaled" + ext
+            
+            # Test if output filename already exists
+            if (Path('/output') / output_filename).exists():
+                print(f"Output file {output_filename} already exists! Skipping...")
+                try:
+                    os.rename(file, Path('/input/processed') / file.name)
+                except PermissionError:
+                    print(f"Permission denied: unable to move {file} to /input/processed")
+                    exit(1)
+                except Exception as e:
+                    print(f"Error moving file {file} to /input/processed: {e}")
+                    exit(1)
+                time.sleep(5)
+                continue
+
             stable = 0
             prev_size = 0
             prev_mtime = 0
 
             while stable < 3:
+                if not file.exists():
+                    print(f"File {file} no longer exists. Restarting loop...")
+                    continue
+
                 curr_size = file.stat().st_size
                 curr_mtime = file.stat().st_mtime
 
@@ -56,14 +77,6 @@ def main():
                 prev_size = curr_size
                 prev_mtime = curr_mtime
                 time.sleep(1)
-
-            filename = file.name
-            output_filename = f"{filename.rsplit('.', 1)[0]}_upscaled" + ext
-            # Test if output filename already exists
-            if (Path('/output') / output_filename).exists():
-                print(f"Output file {output_filename} already exists! Skipping...")
-                file.rename(Path('/input/processed') / file.name)
-                continue
 
             width, height = get_video_resolution(str(file))
 
@@ -77,6 +90,9 @@ def main():
 
                 print(f"Scale factor set to {scale_int} for {filename}")
 
+                if not file.exists():
+                    print(f"File {file} no longer exists. Restarting loop...")
+                    continue
                 try:
                     subprocess.run(
                         ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3', '-c', "libx265"],
@@ -84,7 +100,7 @@ def main():
                     )
                     print(f"video2x processing successful for {filename} (scale: {scale_int})")
                     Path('/input/processed').mkdir(parents=True, exist_ok=True)
-                    file.rename(Path('/input/processed') / file.name)
+                    os.rename(file, Path('/input/processed') / file.name)
                 except subprocess.CalledProcessError:
                     print(f"video2x processing failed for {filename}")
                     exit(1)
