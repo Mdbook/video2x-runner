@@ -9,25 +9,30 @@ if CODEC not in ['libx265', 'libx264']:
     raise ValueError(f"Unsupported codec: {CODEC}")
 
 # Scaling method - either a target resolution or a scale factor
-# Valid values: resolution, flat
-SCALE_METHOD = os.getenv('v2x_scale_method', 'resolution')
+# Valid values: target_resolution, fixed_resolution, flat
+SCALE_METHOD = os.getenv('v2x_scale_method', 'target_resolution')
 # Validate scale method
-if SCALE_METHOD not in ['resolution', 'flat']:
+if SCALE_METHOD not in ['target_resolution', 'fixed_resolution', 'flat']:
     raise ValueError(f"Invalid scale method: {SCALE_METHOD}")
 
-# Target resolution for scaling. Only used if v2x_scale_method is set to resolution
+# Target resolution for scaling. Only used if v2x_scale_method is set to target_resolution
 # Valid values: 480, 720, 1080, 1440, 2160
 TARGET_RESOLUTION = os.getenv('v2x_target_res', '1080')
 # Validate
 if TARGET_RESOLUTION not in ['480', '720', '1080', '1440', '2160']:
     raise ValueError(f"Invalid target resolution: {TARGET_RESOLUTION}")
 
+# Fixed resolution for scaling. Only used if v2x_scale_method is set to fixed_resolution
+# Format: WIDTHxHEIGHT
+FIXED_RESOLUTION = os.getenv('v2x_fixed_res', '1920x1080')
+
+
 # Scale factor. Only used if v2x_scale_method is set to flat
 # Valid values: 2, 3, 4
-SCALEFACTOR = os.getenv('v2x_scale_factor', '4')
+SCALE_FACTOR = os.getenv('v2x_scale_factor', '4')
 # Validate
-if SCALEFACTOR not in ['2', '3', '4']:
-    raise ValueError(f"Invalid scale factor: {SCALEFACTOR}")
+if SCALE_FACTOR not in ['2', '3', '4']:
+    raise ValueError(f"Invalid scale factor: {SCALE_FACTOR}")
 
 # Model to use for upscaling
 MODEL=os.getenv('v2x_model', 'realesrgan-plus-anime')
@@ -57,3 +62,4 @@ elif MODEL in ['models-nose', 'models-pro', 'models-se']:
 else:
     raise ValueError(f"Unsupported model: {MODEL}")
 
+print(f"Using processor: {PROCESSOR} with model: {MODEL}")
