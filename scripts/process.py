@@ -39,9 +39,7 @@ def main():
             if file:
                 break
         if file:
-            print(file)
-            filename = file.name
-            output_filename = f"{filename.rsplit('.', 1)[0]}_upscaled" + ext
+            output_filename = f"{file.name.rsplit('.', 1)[0]}_upscaled" + ext
             
             # Test if output filename already exists
             if (Path('/output') / output_filename).exists():
@@ -81,14 +79,14 @@ def main():
             width, height = get_video_resolution(str(file))
 
             if width and height:
-                print(f"Video resolution: {width}x{height} for {filename}")
+                print(f"Video resolution: {width}x{height} for {file.name}")
                 target_height = 1080
                 scale = target_height / height
                 scale_int = round(scale)
 
                 scale_int = max(1, min(scale_int, 4))
 
-                print(f"Scale factor set to {scale_int} for {filename}")
+                print(f"Scale factor set to {scale_int} for {file.name}")
 
                 if not file.exists():
                     print(f"File {file} no longer exists. Restarting loop...")
@@ -98,14 +96,14 @@ def main():
                         ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3', '-c', "libx265"],
                         check=True
                     )
-                    print(f"video2x processing successful for {filename} (scale: {scale_int})")
+                    print(f"video2x processing successful for {file.name} (scale: {scale_int})")
                     Path('/input/processed').mkdir(parents=True, exist_ok=True)
                     os.rename(file, Path('/input/processed') / file.name)
                 except subprocess.CalledProcessError:
-                    print(f"video2x processing failed for {filename}")
+                    print(f"video2x processing failed for {file.name}")
                     exit(1)
             else:
-                print(f"Failed to get video resolution for {filename}")
+                print(f"Failed to get video resolution for {file.name}")
                 exit(1)
         else:
             print("No files found. Sleeping for 5 seconds...")
