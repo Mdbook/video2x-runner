@@ -10,6 +10,6 @@ source ~/video2x-venv/bin/activate
 
 # Install requirements
 echo "Installing requirements..."
-pip install -r /requirements.txt
+pip install -r /scripts/requirements.txt
 echo "Starting process"
-python3 -u /process.py
+python3 -u /scripts/process.py
