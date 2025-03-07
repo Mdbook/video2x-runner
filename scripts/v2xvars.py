@@ -1,5 +1,5 @@
 import os
-
+# Environment variables haven't been fully tested yet, use with caution
 
 CODEC = os.getenv('v2x_codec', 'libx265')
 # Validate codec
