@@ -6,12 +6,11 @@ from pathlib import Path
 import ffmpeg
 import v2xvars
 
+# TODO support rife
 # TODO add config (in progress)
 # TODO resolve naming conflicts (error handling)
 # TODO add verbose logging
 # TODO add progress logging
-# TODO add support for multiple output formats (in progress)
-# TODO add support for multiple upscale resolutions
 # TODO add database to keep track of broken files
 print("Starting up...")
 
@@ -90,7 +89,7 @@ def main():
                     target_height = v2xvars.TARGET_RESOLUTION
                     scale = int(target_height) / height
                     scale_int = round(scale)
-                    scale_int = max(1, min(scale_int, 4))
+                    scale_int = max(v2xvars.SCALE_MIN, min(scale_int, v2xvars.SCALE_MAX))
                     print(f"Scale factor set to {scale_int} for {file.name}")
                 elif v2xvars.SCALE_METHOD == 'fixed_resolution':
                     fixed_resolution = True
@@ -116,7 +115,8 @@ def main():
                         case 'libplacebo':
                             base_process.extend(['--libplacebo-shader', v2xvars.MODEL])
                         case 'realcugan':
-                            base_process.extend(['--realcugan-model', v2xvars.MODEL])
+                            base_process.extend(['--realcugan-model', v2xvars.MODEL, '--realcugan-threads', v2xvars.REALCUGAN_THREADS, '--realcugan-syncgap', v2xvars.REALCUGAN_SYNCGAP])
+                            
                     subprocess.run(
                         base_process,
                         check=True
