@@ -110,13 +110,13 @@ def main():
                         base_process.extend(['-s', str(scale_int)])
                     else:
                         base_process.extend(['-w', str(resolution_x), '-h', str(resolution_y)])
-                    if v2xvars.PROCESSOR == 'realesrgan':
-                        base_process.extend(['--realesrgan-model', v2xvars.MODEL])
-                    elif v2xvars.PROCESSOR == 'libplacebo':
-                        base_process.extend(['--libplacebo-shader', v2xvars.MODEL])
-                    elif v2xvars.PROCESSOR == 'realcugan':
-                        base_process.extend(['--realcugan-model', v2xvars.MODEL])
-                    
+                    match v2xvars.PROCESSOR:
+                        case 'realesrgan':
+                            base_process.extend(['--realesrgan-model', v2xvars.MODEL])
+                        case 'libplacebo':
+                            base_process.extend(['--libplacebo-shader', v2xvars.MODEL])
+                        case 'realcugan':
+                            base_process.extend(['--realcugan-model', v2xvars.MODEL])
                     subprocess.run(
                         base_process,
                         check=True
@@ -134,5 +134,5 @@ def main():
             print("No files found. Sleeping for 5 seconds...")
             time.sleep(5)
 
-if __name__ == "__main__":exi
+if __name__ == "__main__":
     main()
