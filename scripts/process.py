@@ -4,15 +4,13 @@ import time
 import subprocess
 from pathlib import Path
 import ffmpeg
+import v2xvars
 
-# TODO add config json file
+# TODO add config (in progress)
 # TODO resolve naming conflicts (error handling)
 # TODO add verbose logging
 # TODO add progress logging
-# TODO add support for multiple input formats (in progress)
 # TODO add support for multiple output formats (in progress)
-# TODO add support for hvec_nvenc, hvec_amf, and hvec_qsv
-# TODO add support for multiple upscale models
 # TODO add support for multiple upscale resolutions
 # TODO add database to keep track of broken files
 print("Starting up...")
@@ -81,20 +79,46 @@ def main():
 
             if width and height:
                 print(f"Video resolution: {width}x{height} for {file.name}")
-                target_height = 1080
-                scale = target_height / height
-                scale_int = round(scale)
-
-                scale_int = max(1, min(scale_int, 4))
-
-                print(f"Scale factor set to {scale_int} for {file.name}")
+                scale_int = None
+                fixed_resolution = False
+                resolution_x = None
+                resolution_y = None
+                if v2xvars.SCALE_METHOD == 'flat':
+                    scale_int = int(v2xvars.SCALE_FACTOR)
+                    print(f"Running flat scaling for {file.name} using scale factor {scale_int}")
+                elif v2xvars.SCALE_METHOD == 'target_resolution':
+                    target_height = v2xvars.TARGET_RESOLUTION
+                    scale = target_height / height
+                    scale_int = round(scale)
+                    scale_int = max(1, min(scale_int, 4))
+                    print(f"Scale factor set to {scale_int} for {file.name}")
+                elif v2xvars.SCALE_METHOD == 'fixed_resolution':
+                    fixed_resolution = True
+                    resolution_str = v2xvars.FIXED_RESOLUTION.split('x')
+                    resolution_x = int(resolution_str[0])
+                    resolution_y = int(resolution_str[1])
+                    print(f"Running fixed resolution scaling for {file.name} using resolution {resolution_x}x{resolution_y}")
 
                 if not file.exists():
                     print(f"File {file} no longer exists. Restarting loop...")
                     continue
                 try:
+                    # ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3', '-c', v2xvars.CODEC],
+                    # NEED: -s (scale_int), --realesrgan-model (v2xvars.MODEL), 
+                    base_process = ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', v2xvars.PROCESSOR, '-c', v2xvars.CODEC]
+                    if not fixed_resolution:
+                        base_process.extend(['-s', str(scale_int)])
+                    else:
+                        base_process.extend(['-w', str(resolution_x), '-h', str(resolution_y)])
+                    if v2xvars.PROCESSOR == 'realesrgan':
+                        base_process.extend(['--realesrgan-model', v2xvars.MODEL])
+                    elif v2xvars.PROCESSOR == 'libplacebo':
+                        base_process.extend(['--libplacebo-shader', v2xvars.MODEL])
+                    elif v2xvars.PROCESSOR == 'realcugan':
+                        base_process.extend(['--realcugan-model', v2xvars.MODEL])
+                    
                     subprocess.run(
-                        ['video2x', '-i', str(file), '-o', f"/output/{output_filename}", '-p', 'realesrgan', '-s', str(scale_int), '--realesrgan-model', 'realesr-animevideov3', '-c', "libx265"],
+                        base_process,
                         check=True
                     )
                     print(f"video2x processing successful for {file.name} (scale: {scale_int})")
@@ -110,5 +134,5 @@ def main():
             print("No files found. Sleeping for 5 seconds...")
             time.sleep(5)
 
-if __name__ == "__main__":
+if __name__ == "__main__":exi
     main()
