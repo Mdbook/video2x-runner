@@ -1,11 +1,20 @@
 import os
+from gpu_utils import get_available_gpu
 # Environment variables haven't been fully tested yet, use with caution
 
 CODEC = os.getenv('v2x_codec', 'libx265')
+
+valid_codecs = ['libx265', 'libx264']
+NVIDIA, AMD, INTEL = get_available_gpu()
+if NVIDIA:
+    valid_codecs.append('hvec_nvenc')
+if AMD:
+    valid_codecs.append('hvec_amf')
+if INTEL:
+    valid_codecs.append('hvec_qsv')
+
 # Validate codec
-# TODO add support for hardware encoding
-# hvec_nvenc, hvec_amf, and hvec_qsv
-if CODEC not in ['libx265', 'libx264']:
+if CODEC not in valid_codecs:
     raise ValueError(f"Unsupported codec: {CODEC}")
 
 # Scaling method - either a target resolution or a scale factor
@@ -35,6 +44,7 @@ if SCALE_FACTOR not in ['2', '3', '4']:
     raise ValueError(f"Invalid scale factor: {SCALE_FACTOR}")
 
 # Model to use for upscaling
+# TODO add limitations for models in terms of x[n] scaling
 MODEL=os.getenv('v2x_model', 'realesrgan-plus-anime')
 """
 Valid Models:
