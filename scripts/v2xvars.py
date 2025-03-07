@@ -1,18 +1,18 @@
 import os
-from gpu_utils import get_available_gpu
+# from gpu_utils import get_available_gpu
 # Environment variables haven't been fully tested yet, use with caution
-
+# hardware decoding is currently not working.
 CODEC = os.getenv('v2x_codec', 'libx265')
 
 valid_codecs = ['libx265', 'libx264']
-NVIDIA, AMD, INTEL = get_available_gpu()
-if NVIDIA:
-    valid_codecs.append('hvec_nvenc')
-if AMD:
-    valid_codecs.append('hvec_amf')
-if INTEL:
-    valid_codecs.append('hvec_qsv')
-
+# NVIDIA, AMD, INTEL = get_available_gpu()
+# print(f"NVIDIA: {NVIDIA}, AMD: {AMD}, INTEL: {INTEL}")
+# if NVIDIA:
+#     valid_codecs.append('hevc_nvenc')
+# if AMD:
+#     valid_codecs.append('hevc_amf')
+# if INTEL:
+#     valid_codecs.append('hevc_qsv')
 # Validate codec
 if CODEC not in valid_codecs:
     raise ValueError(f"Unsupported codec: {CODEC}")
@@ -78,7 +78,7 @@ else:
 # Validate model and scale method
 if PROCESSOR == 'libplacebo' and SCALE_METHOD != 'fixed_resolution':
     raise ValueError(f"Model {MODEL} requires fixed resolution scaling")
-if PROCESSOR in ['realcugan', 'realesrgan'] and (SCALE_METHOD != 'flat' or SCALE_METHOD == 'target_resolution'):
+if PROCESSOR in ['realcugan', 'realesrgan'] and (SCALE_METHOD == 'fixed_resolution'):
     raise ValueError(f"Model {MODEL} is incompatible with fixed resolution scaling")
 
 
