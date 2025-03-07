@@ -31,4 +31,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/mdbook/${{ github.event.repository.name }}:${{ github.sha }}
-                  ${{ github.ref == 'refs/heads/main' && 'ghcr.io/mdbook/' + github.event.repository.name + ':latest' || 'ghcr.io/mdbook/' + github.event.repository.name + ':' + github.ref_name }}
+                  ${{ github.ref == 'refs/heads/main' && format('ghcr.io/mdbook/{0}:latest', github.event.repository.name) || format('ghcr.io/mdbook/{0}:{1}', github.event.repository.name, github.ref_name) }}
